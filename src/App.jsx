@@ -1,10 +1,10 @@
-
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLogin from "./pages/admin/AdminLogin";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -17,6 +17,9 @@ import Wishlist from "./pages/Wishlist";
 
 function App() {
   const products = useSelector((state) => state.products);
+  const auth = useSelector((state) => state.auth);
+  const isAdminAuthenticated = Boolean(auth?.isAuthenticated && auth?.isAdmin);
+
   const [currentUrl, setCurrentUrl] = useState(
     () => `${window.location.pathname}${window.location.search}`,
   );
@@ -76,15 +79,29 @@ function App() {
 
   const isAdminRoute = path.startsWith("/admin");
 
-  if (path === "/admin") {
-    page = <AdminDashboard />;
-  } else if (path === "/admin/products") {
-    page = <AdminProducts />;
-  } else if (path === "/admin/orders") {
-    const orderId = url.searchParams.get("order") || "";
-    page = <AdminOrders key={orderId} initialOrderId={orderId} />;
+  // Authentication & Security Guard for Admin Routes
+  if (path === "/admin/login") {
+    if (isAdminAuthenticated) {
+      page = <AdminDashboard />;
+    } else {
+      return <AdminLogin onLoginSuccess={() => navigate("/admin")} />;
+    }
   } else if (isAdminRoute) {
-    page = <NotFound />;
+    if (!isAdminAuthenticated) {
+      // Prevent unauthorized access via direct URL typing
+      return <AdminLogin onLoginSuccess={() => navigate(path)} />;
+    }
+
+    if (path === "/admin") {
+      page = <AdminDashboard />;
+    } else if (path === "/admin/products") {
+      page = <AdminProducts />;
+    } else if (path === "/admin/orders") {
+      const orderId = url.searchParams.get("order") || "";
+      page = <AdminOrders key={orderId} initialOrderId={orderId} />;
+    } else {
+      page = <NotFound />;
+    }
   } else if (path === "/") {
     page = <Home products={products} />;
   } else if (path === "/shop") {

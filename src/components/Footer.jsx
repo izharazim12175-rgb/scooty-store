@@ -1,4 +1,9 @@
+import { useSelector } from "react-redux";
+
 function Footer() {
+  const auth = useSelector((state) => state.auth);
+  const adminHref = auth?.isAdmin ? "/admin" : "/admin/login";
+
   return (
     <footer className="site-footer">
       <a className="footer-brand" href="/" aria-label="ScootStore home">
@@ -7,7 +12,7 @@ function Footer() {
       </a>
       <p>Find your next electric ride.</p>
       <div>
-        <a className="footer-admin-link" href="/admin">
+        <a className="footer-admin-link" href={adminHref}>
           Admin Dashboard ⚙
         </a>
       </div>

@@ -6,6 +6,8 @@ function Navbar({ searchTerm, onSearch, onSearchChange }) {
     state.cart.reduce((count, item) => count + item.quantity, 0),
   );
   const wishlistCount = useSelector((state) => state.wishlist.length);
+  const auth = useSelector((state) => state.auth);
+  const adminHref = auth?.isAdmin ? "/admin" : "/admin/login";
 
   return (
     <header className="site-header">
@@ -35,7 +37,7 @@ function Navbar({ searchTerm, onSearch, onSearchChange }) {
             Cart
             <span className="count-badge">{cartCount}</span>
           </a>
-          <a className="nav-admin-highlight" href="/admin" title="Open Admin Dashboard">
+          <a className="nav-admin-highlight" href={adminHref} title="Open Admin Panel">
             <span aria-hidden="true">⚙</span>
             Admin
           </a>
